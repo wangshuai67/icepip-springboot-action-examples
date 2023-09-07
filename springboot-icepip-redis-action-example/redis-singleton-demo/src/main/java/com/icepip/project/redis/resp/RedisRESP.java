@@ -12,7 +12,7 @@ import java.net.*;
 public class RedisRESP {
     public static void main(String[] args) throws IOException {
         // 创建一个 socket 连接
-        Socket socket = new Socket("epaas.e6xayf.com", 6379);
+        Socket socket = new Socket("127.0.0.1", 6379);
 
         // 获取输出流，用于向服务器发送命令
         BufferedWriter out = new BufferedWriter(
@@ -25,7 +25,7 @@ public class RedisRESP {
                         socket.getInputStream(), "UTF-8"));
 
      // TODO 如果 Redis 服务器需要密码进行身份验证 如果不需要密码 则去掉这块代码验证
-        String password = "P@ssW0rd67";
+        String password = "123456";
         if (!password.isEmpty()) {
             // 发送 AUTH 命令进行身份验证
             out.write("AUTH " + password + "\r\n");
