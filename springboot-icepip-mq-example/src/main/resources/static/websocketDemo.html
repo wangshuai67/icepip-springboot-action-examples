@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WebSocket Client 使用Java的标准WebSocket API（JSR 356）</title>
+
+</head>
+<body>
+<h1>第一种使用Java的标准WebSocket API（JSR 356），不用Spring的WebSocket支持</h1>
+<div>
+    <p> reconnectInterval = 1000毫秒;  重新连接的间隔时间 </p>
+    <p>  heartbeatInterval = 5000毫秒; 心跳包发送的间隔时间 </p>
+</div>
+<p>Enter your user ID:</p>
+<input id="userId" type="text">
+<button onclick="connect()">Connect</button>
+
+<p id="status"></p>
+<input id="message" type="text">
+<button onclick="sendMessage()">Send Message</button>
+<p id="response"></p>
+
+<script>
+    var ws;
+    var reconnectInterval = 1000; // 重新连接的间隔时间，单位为毫秒
+    var reconnectTimeout = null; // 用于存储定时器的ID
+    var heartbeatInterval = 5000; // 心跳包发送的间隔时间，单位为毫秒
+    var heartbeatTimeout = null; // 用于存储心跳包定时器的ID
+
+    // 创建一个WebSocket连接
+    function connect() {
+        var userId = document.getElementById('userId').value;
+        ws = new WebSocket("ws://localhost:8080/busiEventHandler?userId=" + userId);
+
+        // 当WebSocket连接打开时，更新状态并开始发送心跳包
+        ws.onopen = function(event) {
+            document.getElementById('status').innerHTML = 'Connection opened';
+            // 连接打开后，清除定时器
+            if (reconnectTimeout) {
+                clearTimeout(reconnectTimeout);
+                reconnectTimeout = null;
+            }
+            // 开始发送心跳包
+            heartbeatTimeout = setInterval(function() {
+                if (ws.readyState === WebSocket.OPEN) {
+                    ws.send('heartbeat');
+                }
+            }, heartbeatInterval);
+        };
+
+        // 当接收到服务器发送的消息时，显示在页面上
+        ws.onmessage = function(event) {
+            document.getElementById('response').innerHTML+= '<div>Received: ' + event.data+"</div>";
+        };
+
+        // 当WebSocket连接关闭或发生错误时，更新状态并尝试重新连接
+        ws.onclose = function(event) {
+            document.getElementById('status').innerHTML = 'Connection closed. Reconnecting...';
+            reconnectTimeout = setTimeout(connect, reconnectInterval); // 1秒后尝试重新连接
+            // 连接关闭后，停止发送心跳包
+            if (heartbeatTimeout) {
+                clearInterval(heartbeatTimeout);
+                heartbeatTimeout = null;
+            }
+        };
+        ws.onerror = function(event) {
+            document.getElementById('status').innerHTML = 'Error occurred';
+        };
+    }
+
+
+    // 发送消息到服务器
+    function sendMessage() {
+        var message = document.getElementById('message').value;
+        if(!ws||ws.readyState != WebSocket.OPEN){
+            alert('请先创建连接，Connection not opened yet, please connect. xiexie');
+            return;
+        }else{
+            ws.send(message);
+            document.getElementById('response').innerHTML+= '<div>已发送[send]: ' + message+"</div>";
+        }
+
+    }
+
+</script>
+
+</body>
+</html>
