@@ -36,6 +36,7 @@ public class MqttConfig {
 
     @Value("${mqtt.timeout}")
     private Integer timeout;
+
     @Bean
     public MqttConnectOptions mqttConnectOptions() {
         MqttConnectOptions options = new MqttConnectOptions();
@@ -44,6 +45,9 @@ public class MqttConfig {
         // 其他设置，如用户名和密码等
         options.setUserName(username);
         options.setPassword(password.toCharArray());
+        options.setCleanSession(cleanSession);
+        options.setKeepAliveInterval(keepAlive);
+        options.setConnectionTimeout(timeout);
         return options;
     }
 
@@ -53,7 +57,6 @@ public class MqttConfig {
         mqttClient.connect(mqttConnectOptions());
         return mqttClient;
     }
-
 
 
 }
