@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.annotation.PostConstruct;
 
 /**
- * @author 冰点
+ * 使用Controller来直观的测试验证
+ * @author 冰点(icepip.blog.csdn.com)
  * @version 1.0.0
  * @date 2023/9/8 16:15
  */
