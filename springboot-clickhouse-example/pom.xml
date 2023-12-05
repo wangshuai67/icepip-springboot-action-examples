@@ -9,10 +9,10 @@
 		<relativePath/>
 	</parent>
 	<groupId>com.icepip.project</groupId>
-	<artifactId>springboot-icepip-cache-example</artifactId>
+	<artifactId>springboot-clickhouse-example</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>springboot-icepip-cache-example</name>
-	<description>Spring boot cache 示例</description>
+	<name>springboot-clickhouse-example</name>
+	<description>Spring boot 集成clickhouse示例</description>
 	<properties>
 		<java.version>8</java.version>
 	</properties>
@@ -21,6 +21,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.clickhouse</groupId>
+			<artifactId>clickhouse-jdbc</artifactId>
+			<version>0.3.2</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.projectlombok</groupId>
 			<artifactId>lombok</artifactId>
@@ -35,6 +41,12 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-actuator</artifactId>
 		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Spring的WebSocket支持 利用stomp方式+SockJS实现Websocket</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+<h1>第二种Spring的WebSocket支持 利用stomp方式+SockJS实现Websocket</h1>
+<button id="connect">Connect</button>
+<button id="disconnect" disabled>Disconnect</button>
+<input id="message" type="text" placeholder=" 输入 your msg here..." disabled>
+<button id="send" disabled>Send Message</button>
+<div id="status">Disconnected</div>
+<div id="messages"></div>
+
+<script>
+    var stompClient = null;
+    var heartbeatInterval = 5000; // 心跳包发送的间隔时间，单位为毫秒
+    var heartbeatTimeout = null; // 用于存储心跳包定时器的ID
+
+    function setConnected(connected) {
+        document.getElementById('connect').disabled = connected;
+        document.getElementById('disconnect').disabled = !connected;
+        document.getElementById('send').disabled = !connected;
+        document.getElementById('message').disabled = !connected;
+        document.getElementById('status').innerText = connected ? 'Connected' : 'Disconnected';
+
+        if (connected) {
+            heartbeatTimeout = setInterval(function () {
+                if (stompClient && stompClient.connected) {
+                    stompClient.send("/app/websocketDemo2", {}, 'heartbeat');
+                }
+            }, heartbeatInterval);
+        } else {
+            if (heartbeatTimeout) {
+                clearInterval(heartbeatTimeout);
+                heartbeatTimeout = null;
+            }
+        }
+    }
+
+    function showMessage(message, type) {
+        var messageElement = document.createElement('p');
+        messageElement.innerText = type + ': ' + message + ' (at ' + new Date().toLocaleString() + ')';
+        document.getElementById('messages').appendChild(messageElement);
+    }
+
+    document.getElementById('connect').addEventListener('click', function () {
+        var socket = new SockJS('http://localhost:8080/websocketDemo2');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function (frame) {
+            setConnected(true);
+            console.log('Connected: ' + frame);
+
+            stompClient.subscribe('/topic/greetings', function (greeting) {
+                showMessage(greeting.body, 'Received');
+            });
+        }, function (error) {
+            console.log('Connect error: ' + error);
+            document.getElementById('status').innerText = 'Connect error: ' + error;
+        });
+    });
+
+    document.getElementById('disconnect').addEventListener('click', function () {
+        if (stompClient !== null) {
+            stompClient.disconnect(function () {
+                console.log("Disconnected");
+                setConnected(false);
+            });
+        }
+    });
+
+    document.getElementById('send').addEventListener('click', function () {
+        var message = document.getElementById('message').value;
+        stompClient.send("/app/websocketDemo2", {}, message);
+        showMessage(message, 'Sent');
+    });
+</script>
+</body>
+</html>
